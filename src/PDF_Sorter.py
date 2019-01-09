@@ -12,6 +12,17 @@ programName.__repr__()
 "Version".__repr__()
 #print(programName,"\n" ,"Version", programVersion,"\n" ,"license",licenseVersion,"\n" ,"Homepage:",homepageProyect)
 
+cwd = sys.argv[1]
+#cwd = ""
+list_of_Files = os.listdir(cwd)
+#list_of_Files = []
+list_of_PDFs = []
+list_new_names = []
+n_total_pdfs = 0
+n_changed_pdfs = 0
+path = ""
+max_long_title = 60
+
 #Colors for console output
 class bcolors:
     HEADER = '\033[95m'
@@ -60,7 +71,10 @@ def getPDFIntrospection(aPDF):
     pdf.close()
     return content
 
-def renameFileToPDFTitle(aPDFList):
+isascii = lambda s: len(s) == len(s.encode())
+
+def renameFileToPDFTitle(aPDFList,aOutputMode):
+    n_changed_pdfs = 0
     i = 0
     for pdf in aPDFList:
         try:
@@ -80,16 +94,27 @@ def renameFileToPDFTitle(aPDFList):
                 newName = str(getPubDate(pdf)) + "_"+ str(getTitle(pdf))
             newName = newName[:max_long_title] + ".pdf"
             formerName = os.path.join(cwd, pdf)
+
+
             newName = newName.replace("-", "_")
             newName = newName.replace(" ", "_")
             newName = newName.replace("(", "" )
             newName = newName.replace(")", "" )
             newName = newName.replace("/", "_")
             newName = newName.replace("”", "_")
-            if pdf != newName:
+            newName = os.path.join(cwd, newName)
+
+            if pdf != newName and (not aOutputMode):
+                #n_changed_pdfs += 1
                 os.rename(formerName,newName)
-                print (pdf + bcolors.OKGREEN + " changed to " + bcolors.OKGREEN + chr(27)+"[0m" + newName )
-                list_new_names.append(pdf)
+                print (pdf[len(cwd):] + bcolors.OKGREEN + " changed to " + bcolors.OKGREEN + chr(27)+"[0m" + newName[len(cwd):] )
+                list_new_names.append(newName)
+                n_changed_pdfs = (len(list_new_names))
+            else:
+                os.rename(formerName,newName)
+                list_new_names.append(newName)
+                n_changed_pdfs = (len(list_new_names))
+
 
         except TypeError:
             print("TypeError")
@@ -106,64 +131,55 @@ def printHelp():
     """
     print(comands)
 
+def printVersion():
+    print("PDF_Sorter Version", programVersion,)
 
 def flags(x):
     return {
         '-h': "--help",
-        '-s': "--silent"
-        '-v': "--version",
+        '-s': "--silent",
+        '-v': "--version"
     }#.get(x, 9)
 
 
 def main(args):
+    silentMode = False
+    cwd = sys.argv[1]
+#    isascii = lambda s: len(s) == len(s.encode())
+#    list_of_Files = os.listdir(cwd)
+#    list_of_PDFs = []
+#    list_new_names = []
+    n_total_pdfs = 0
+#    n_changed_pdfs = 0
+#    path = ""
+#    max_long_title = 60
     if len(args) < 2:
         sys.exit("No arguments!")
     else:
         flag = sys.argv[1]
         if flag in flags(flag):
-            print ("blah")
+            if flag == "-h":
+                printHelp()
+            elif flag == "-v":
+                printVersion()
+            elif flag == "-s":
+                silentMode = True
         else:
-            print ("No blah")
+            cwd = sys.argv[1]
+            if os.path.isdir(cwd):
+                for file in list_of_Files:
+                    if ".pdf" in file:
+                        n_total_pdfs += 1
+                        list_of_PDFs.append(cwd+file)
 
+                renameFileToPDFTitle(list_of_PDFs,silentMode)
+            else:
+                sys.exit("No valid path.")
 
-        cwd = sys.argv[1]
-        if os.path.isdir(cwd):
-            print("COol")
-        else:
-            print("No Cool")
+            #sys.exit("No valid option.")
+    print('PDF(s) found:', n_total_pdfs, 'PDF(s) changed:',len(list_new_names) )
 
-
-    print("Path",sys.argv[1])
-    cwd = os.getcwd()
-    #os.chdir(os.path.normpath(os.getcwd() + os.sep + os.pardir))
-    if os.path.isdir('./data'):
-        cwd = cwd  + '/data'
-        os.chdir(cwd)
-        if os.path.isdir('./pdf'):
-            cwd = cwd  + '/pdf'
-            os.chdir(cwd)
-
-    list_of_Files = os.listdir(cwd)
-    list_of_PDFs = []
-    list_new_names = []
-    n_total_pdfs = 0
-    n_changed_pdfs = 0
-    path = ""
-    max_long_title = 60
-
-    for file in list_of_Files:
-        if ".pdf" in file:
-            n_total_pdfs += 1
-        #    print (file)
-            list_of_PDFs.append(file)
-
-    isascii = lambda s: len(s) == len(s.encode())
-
-
-
-    renameFileToPDFTitle(list_of_PDFs)
-
-    print('PDF(s) found:', n_total_pdfs, 'PDF(s) changed:',n_changed_pdfs )
+    #print('PDF(s) found:', n_total_pdfs, 'PDF(s) changed:',n_changed_pdfs )
 
 if __name__=='__main__':
     main(sys.argv)
