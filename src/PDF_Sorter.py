@@ -12,15 +12,12 @@ programName.__repr__()
 "Version".__repr__()
 #print(programName,"\n" ,"Version", programVersion,"\n" ,"license",licenseVersion,"\n" ,"Homepage:",homepageProyect)
 
-cwd = sys.argv[1]
+#cwd = sys.argv[1]
 #cwd = ""
-list_of_Files = os.listdir(cwd)
+#list_of_Files = os.listdir(cwd)
 #list_of_Files = []
-list_of_PDFs = []
+#list_of_PDFs = []
 list_new_names = []
-n_total_pdfs = 0
-n_changed_pdfs = 0
-path = ""
 max_long_title = 60
 
 #Colors for console output
@@ -73,7 +70,7 @@ def getPDFIntrospection(aPDF):
 
 isascii = lambda s: len(s) == len(s.encode())
 
-def renameFileToPDFTitle(aPDFList,aOutputMode):
+def renameFileToPDFTitle(aPDFList,aOutputMode,dst):
     n_changed_pdfs = 0
     i = 0
     for pdf in aPDFList:
@@ -93,7 +90,7 @@ def renameFileToPDFTitle(aPDFList,aOutputMode):
             else:
                 newName = str(getPubDate(pdf)) + "_"+ str(getTitle(pdf))
             newName = newName[:max_long_title] + ".pdf"
-            formerName = os.path.join(cwd, pdf)
+            formerName = os.path.join(dst, pdf)
 
 
             newName = newName.replace("-", "_")
@@ -102,12 +99,12 @@ def renameFileToPDFTitle(aPDFList,aOutputMode):
             newName = newName.replace(")", "" )
             newName = newName.replace("/", "_")
             newName = newName.replace("”", "_")
-            newName = os.path.join(cwd, newName)
+            newName = os.path.join(dst, newName)
 
             if pdf != newName and (not aOutputMode):
                 #n_changed_pdfs += 1
                 os.rename(formerName,newName)
-                print (pdf[len(cwd):] + bcolors.OKGREEN + " changed to " + bcolors.OKGREEN + chr(27)+"[0m" + newName[len(cwd):] )
+                print (pdf[len(dst):] + bcolors.OKGREEN + " changed to " + bcolors.OKGREEN + chr(27)+"[0m" + newName[len(dst):] )
                 list_new_names.append(newName)
                 n_changed_pdfs = (len(list_new_names))
             else:
@@ -122,6 +119,7 @@ def renameFileToPDFTitle(aPDFList,aOutputMode):
 def printHelp():
     print(programName,"\n" ,"Version", programVersion,"\n" ,"license",licenseVersion,"\n" ,"Homepage:",homepageProyect)
     print("Usage: python3 PDF_Sorter.py [OPTION] ... [FILE]")
+    print(" ")
     print("If path to files constains blank spaces, add", "\\", " to blank spaces, example:"  )
     print( "/folder X/files.pdf must be -> ", "folder\\","X/files.pdf")
     comands = """
@@ -144,15 +142,10 @@ def flags(x):
 
 def main(args):
     silentMode = False
-    cwd = sys.argv[1]
-#    isascii = lambda s: len(s) == len(s.encode())
-#    list_of_Files = os.listdir(cwd)
-#    list_of_PDFs = []
-#    list_new_names = []
+    list_of_PDFs = []
     n_total_pdfs = 0
-#    n_changed_pdfs = 0
-#    path = ""
-#    max_long_title = 60
+    n_changed_pdfs = 0
+    path = ""
     if len(args) < 2:
         sys.exit("No arguments!")
     else:
@@ -164,15 +157,25 @@ def main(args):
                 printVersion()
             elif flag == "-s":
                 silentMode = True
+                cwd = sys.argv[2]
+                list_of_Files = os.listdir(cwd)
+                if os.path.isdir(cwd):
+                    for file in list_of_Files:
+                        if ".pdf" in file:
+                            n_total_pdfs += 1
+                            list_of_PDFs.append(cwd+file)
+
+                    renameFileToPDFTitle(list_of_PDFs,silentMode,cwd)
         else:
             cwd = sys.argv[1]
+            list_of_Files = os.listdir(cwd)
             if os.path.isdir(cwd):
                 for file in list_of_Files:
                     if ".pdf" in file:
                         n_total_pdfs += 1
                         list_of_PDFs.append(cwd+file)
 
-                renameFileToPDFTitle(list_of_PDFs,silentMode)
+                renameFileToPDFTitle(list_of_PDFs,silentMode,cwd)
             else:
                 sys.exit("No valid path.")
 
