@@ -1,5 +1,5 @@
 # PDF_Sorter
-[![Build Status](https://travis-ci.org/J0MS/PDF_Sorter.svg?branch=master)](https://travis-ci.org/J0MS/PDF_Sorter) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/J0MS/PDF_Sorter) [![HitCount](http://hits.dwyl.com/{username}/{project-name}.svg)](http://hits.dwyl.com/{username}/{project-name})
+[![Build Status](https://travis-ci.org/J0MS/PDF_Sorter.svg?branch=master)](https://travis-ci.org/J0MS/PDF_Sorter)  [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/J0MS/PDF_Sorter)  [![HitCount](http://hits.dwyl.com/{username}/{project-name}.svg)](http://hits.dwyl.com/{username}/{project-name})  [![Known Vulnerabilities](https://snyk.io/test/github/J0MS/PDF_Sorter/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/J0MS/PDF_Sorter?targetFile=requirements.txt)
 
 # Motivation
 Sometimes a large collection of PDF files may be messy and recovering a file can be a big problem :neckbeard:..
