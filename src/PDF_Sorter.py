@@ -11,6 +11,7 @@ homepageProyect = "https://github.com/J0MS/PDF_Sorter"
 programName.__repr__()
 "Version".__repr__()
 #print(programName,"\n" ,"Version", programVersion,"\n" ,"license",licenseVersion,"\n" ,"Homepage:",homepageProyect)
+#python3 -c "import PyPDF2; print(PyPDF2.__version__)"
 
 #cwd = sys.argv[1]
 #cwd = ""
