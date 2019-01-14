@@ -1,7 +1,7 @@
 language: python
 python:
-  - "3.6.5"
+  - 2.7
 cache: pip
 install:
-  - pip install unittest
+  - pip install unittest2
 script:python unitTest.py
