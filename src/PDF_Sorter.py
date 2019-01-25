@@ -20,6 +20,10 @@ programName.__repr__()
 #list_of_PDFs = []
 list_new_names = []
 max_long_title = 60
+#n_total_pdfs = 0
+list_of_PDFs = []
+outputMode = False
+n_changed_pdfs = 0
 
 #Colors for console output
 class bcolors:
@@ -92,8 +96,6 @@ def renameFileToPDFTitle(aPDFList,aOutputMode,dst):
                 newName = str(getPubDate(pdf)) + "_"+ str(getTitle(pdf))
             newName = newName[:max_long_title] + ".pdf"
             formerName = os.path.join(dst, pdf)
-
-
             newName = newName.replace("-", "_")
             newName = newName.replace(" ", "_")
             newName = newName.replace("(", "" )
@@ -103,16 +105,14 @@ def renameFileToPDFTitle(aPDFList,aOutputMode,dst):
             newName = os.path.join(dst, newName)
 
             if pdf != newName and (not aOutputMode):
-                #n_changed_pdfs += 1
                 os.rename(formerName,newName)
                 print (pdf[len(dst):] + bcolors.OKGREEN + " changed to " + bcolors.OKGREEN + chr(27)+"[0m" + newName[len(dst):] )
                 list_new_names.append(newName)
                 n_changed_pdfs = (len(list_new_names))
-            else:
-                os.rename(formerName,newName)
-                list_new_names.append(newName)
-                n_changed_pdfs = (len(list_new_names))
-
+        #    else:
+        #        os.rename(formerName,newName)
+        #        list_new_names.append(newName)
+        #        n_changed_pdfs = (len(list_new_names))
 
         except TypeError:
             print("TypeError")
@@ -140,12 +140,18 @@ def flags(x):
         '-v': "--version"
     }#.get(x, 9)
 
+def file_list_transform(index):
+    cwd = sys.argv[index]
+    list_of_Files = os.listdir(cwd)
+    if os.path.isdir(cwd):
+        for file in list_of_Files:
+            if ".pdf" in file:
+                list_of_PDFs.append(cwd+file)
+        renameFileToPDFTitle(list_of_PDFs,outputMode,cwd)
+    else:
+         sys.exit("No valid path.")
 
 def main(args):
-    silentMode = False
-    list_of_PDFs = []
-    n_total_pdfs = 0
-    n_changed_pdfs = 0
     path = ""
     if len(args) < 2:
         sys.exit("No arguments!")
@@ -157,31 +163,14 @@ def main(args):
             elif flag == "-v":
                 printVersion()
             elif flag == "-s":
-                silentMode = True
-                cwd = sys.argv[2]
-                list_of_Files = os.listdir(cwd)
-                if os.path.isdir(cwd):
-                    for file in list_of_Files:
-                        if ".pdf" in file:
-                            n_total_pdfs += 1
-                            list_of_PDFs.append(cwd+file)
+                outputMode = True
+                file_list_transform(2)
 
-                    renameFileToPDFTitle(list_of_PDFs,silentMode,cwd)
         else:
-            cwd = sys.argv[1]
-            list_of_Files = os.listdir(cwd)
-            if os.path.isdir(cwd):
-                for file in list_of_Files:
-                    if ".pdf" in file:
-                        n_total_pdfs += 1
-                        list_of_PDFs.append(cwd+file)
+            file_list_transform(1)
 
-                renameFileToPDFTitle(list_of_PDFs,silentMode,cwd)
-            else:
-                sys.exit("No valid path.")
 
-            #sys.exit("No valid option.")
-    print('PDF(s) found:', n_total_pdfs, 'PDF(s) changed:',len(list_new_names) )
+    print('PDF(s) found:', len(list_of_PDFs), 'PDF(s) changed:',len(list_new_names) )
 
     #print('PDF(s) found:', n_total_pdfs, 'PDF(s) changed:',n_changed_pdfs )
 
