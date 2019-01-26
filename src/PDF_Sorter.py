@@ -1,8 +1,12 @@
 #!/usr/bin/python3
 import os
 import sys
+import logging
+import threading
 from pdfrw import PdfReader
 from PyPDF2 import PdfFileReader
+
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s](%(threadName)-s) %(message)s')
 
 programName = "PDF_Sorter"
 programVersion = "1.0"
@@ -13,17 +17,13 @@ programName.__repr__()
 #print(programName,"\n" ,"Version", programVersion,"\n" ,"license",licenseVersion,"\n" ,"Homepage:",homepageProyect)
 #python3 -c "import PyPDF2; print(PyPDF2.__version__)"
 
-#cwd = sys.argv[1]
-#cwd = ""
-#list_of_Files = os.listdir(cwd)
-#list_of_Files = []
-#list_of_PDFs = []
+list_of_all_PDFs = []
 list_new_names = []
 max_long_title = 60
-#n_total_pdfs = 0
-list_of_PDFs = []
-outputMode = False
+list_of_paths= []
+#verboseMode = False
 n_changed_pdfs = 0
+n_total_pdfs = 0
 
 #Colors for console output
 class bcolors:
@@ -35,6 +35,7 @@ class bcolors:
     ENDC = '\033[0m'
 
 def getTitle(aPDF):
+    #logging.info("Method getTitle for:" + str(aPDF))
     title = " "
     temp_PDF = PdfReader(aPDF)
     if temp_PDF.isEncrypted:
@@ -44,6 +45,7 @@ def getTitle(aPDF):
     return title
 
 def getPubDate(aPDF):
+    #logging.info("Method getPubDate for:" + str(aPDF))
     publication_date = " "
     temp_PDF = PdfFileReader(open(aPDF, "rb"))
     if temp_PDF.isEncrypted:
@@ -62,6 +64,7 @@ def getPubDate(aPDF):
     return publication_date
 
 def getPDFIntrospection(aPDF):
+    #logging.info("Method getPDFIntrospection for:" + str(aPDF))
     content = " "
     pdf = open(aPDF, 'rb')
     reader = PdfFileReader(pdf)
@@ -76,6 +79,7 @@ def getPDFIntrospection(aPDF):
 isascii = lambda s: len(s) == len(s.encode())
 
 def renameFileToPDFTitle(aPDFList,aOutputMode,dst):
+    #logging.info("Method renameFileToPDFTitle for:" + str(aPDFList))
     n_changed_pdfs = 0
     i = 0
     for pdf in aPDFList:
@@ -104,15 +108,11 @@ def renameFileToPDFTitle(aPDFList,aOutputMode,dst):
             newName = newName.replace("”", "_")
             newName = os.path.join(dst, newName)
 
-            if pdf != newName and (not aOutputMode):
+            if pdf != newName:
                 os.rename(formerName,newName)
-                print (pdf[len(dst):] + bcolors.OKGREEN + " changed to " + bcolors.OKGREEN + chr(27)+"[0m" + newName[len(dst):] )
                 list_new_names.append(newName)
-                n_changed_pdfs = (len(list_new_names))
-        #    else:
-        #        os.rename(formerName,newName)
-        #        list_new_names.append(newName)
-        #        n_changed_pdfs = (len(list_new_names))
+                if aOutputMode:
+                    print (pdf[len(dst):] + bcolors.OKGREEN + " changed to " + bcolors.OKGREEN + chr(27)+"[0m" + newName[len(dst):] )
 
         except TypeError:
             print("TypeError")
@@ -140,16 +140,26 @@ def flags(x):
         '-v': "--version"
     }#.get(x, 9)
 
-def file_list_transform(index):
-    cwd = sys.argv[index]
+
+def get_List_of_pdfFiles(aPath):
+    #logging.info("Method get_List_of_pdfFiles for:" + str(aPath))
+    cwd = aPath
     list_of_Files = os.listdir(cwd)
+    list_of_PDFs = []
     if os.path.isdir(cwd):
         for file in list_of_Files:
             if ".pdf" in file:
+                list_of_all_PDFs.append(file)
                 list_of_PDFs.append(cwd+file)
-        renameFileToPDFTitle(list_of_PDFs,outputMode,cwd)
     else:
-         sys.exit("No valid path.")
+        sys.exit("No valid path.")
+    return list_of_PDFs
+
+
+
+def rename_list_of_files(aPath,aOutputMode):
+    #logging.info("Method rename_list_of_files for:" + str(aPath))
+    renameFileToPDFTitle(get_List_of_pdfFiles(aPath),aOutputMode,aPath)
 
 def main(args):
     path = ""
@@ -163,16 +173,21 @@ def main(args):
             elif flag == "-v":
                 printVersion()
             elif flag == "-s":
-                outputMode = True
-                file_list_transform(2)
+                verboseMode = False
+                index = 0
+                for path in sys.argv[2:]:
+                    index += 1
+                    rename_list_of_files(path,verboseMode)
 
         else:
-            file_list_transform(1)
+            verboseMode = True
+            index = 0
+            for path in sys.argv[1:]:
+                index += 1
+                rename_list_of_files(path,verboseMode)
 
 
-    print('PDF(s) found:', len(list_of_PDFs), 'PDF(s) changed:',len(list_new_names) )
-
-    #print('PDF(s) found:', n_total_pdfs, 'PDF(s) changed:',n_changed_pdfs )
+    print('PDF(s) found:', len(list_of_all_PDFs), 'PDF(s) changed:',len(list_new_names) )
 
 if __name__=='__main__':
     main(sys.argv)
