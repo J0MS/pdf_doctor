@@ -22,7 +22,13 @@ This tool require the  following modules:
 
 # Usage.
 
-Whit Python3 simply: PDF_Sorter.py [OPTION] ... [FILE]
+Whit Python3 simply: 
+
+PDF_Sorter.py [OPTION] ... [PATH]
+If you have multiple directories:
+PDF_Sorter.py [OPTION] ... [PATH1] [PATH2] [PATH3] ....[PATH n]
+
+
 Type PDF_Sorter.py -h for help.
 
 
