@@ -1,4 +1,14 @@
 #!/usr/bin/python3
+
+"""
+A Python tool for appropriate sort of PDF Files collection.
+See README for links to FAQ, documentation, homepage, etc.
+"""
+
+__author__ = "J0MS"
+__author_email__ = "passwd@ciencias.unam.mx"
+
+
 import os
 import sys
 import logging
